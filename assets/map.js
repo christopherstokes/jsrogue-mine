@@ -1,7 +1,7 @@
 Game.Map = function(tiles, player) {
     this._tiles = tiles;
     // Cache dimensions
-    this._depth = tiles.length
+    this._depth = tiles.length;
     this._width = tiles[0].length;
     this._height = tiles[0][0].length;
     // Setup the field of visions
@@ -28,6 +28,13 @@ Game.Map = function(tiles, player) {
             // Add a random entity
             this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
         }
+    }
+    // add weapons and armor to the map in random positions
+    var templates = ['dagger', 'sword', 'staff',
+                     'tunic', 'chainmail', 'platemail'];
+    for (var i = 0; i < templates.length; i++) {
+        this.addItemAtRandomPosition(Game.ItemRepository.create(templates[i]),
+                                     Math.floor(this._depth * Math.random()));
     }
     // Setup the explored array
     this._explored = new Array(this._depth);
@@ -195,7 +202,9 @@ Game.Map.prototype.removeEntity = function(entity) {
 
 Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
     // Delete the old key if it is the same entity and we have old positions.
-    if (oldX) {
+    if (typeof oldX === 'number') {
+        // delete the old key if is is the same entity
+        // and we have old positions
         var oldKey = oldX + ',' + oldY + ',' + oldZ;
         if (this._entities[oldKey] == entity) {
             delete this._entities[oldKey];
