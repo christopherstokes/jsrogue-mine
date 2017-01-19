@@ -1,162 +1,75 @@
-// create our Mixins namespace
+// Create our Mixins namespace
 Game.Mixins = {};
 
-// General Mixins for various actions
-// Destructible mixin
-Game.Mixins.Destructible = {
-    name: 'Destructible',
-    init: function (template) {
-        this._maxHp = template['maxHp'] || 10;
-
-        // we allow takingin health from the template
-        // in case we want to start with different HP
-        // than the max specifies
-
-        this._hp = template['hp'] || this._maxHp;
-
-        this._defenseValue = template['defenseValue'] || 0;
-    },
-    getHp: function () {
-        return this._hp;
-    },
-    getMaxHp: function () {
-        return this._maxHp;
-    },
-    getDefenseValue: function () {
-        return this._defenseValue;
-    },
-    takeDamage: function (attacker, damage) {
-        this._hp -= damage;
-
-        // remove entity when reaching 0 or less hp
-        if (this._hp <= 0) {
-            Game.sendMessage(attacker, 'You kill the %s!', [this.getName()]);
-
-            // check if player died, if so call their act method
-            if (this.hasMixin(Game.Mixins.PlayerActor)) {
-                this.act();
+// Define our Moveable mixin
+Game.Mixins.Moveable = {
+    name: 'Moveable',
+    tryMove: function(x, y, z, map) {
+        var map = this.getMap();
+        // Must use starting z
+        var tile = map.getTile(x, y, this.getZ());
+        var target = map.getEntityAt(x, y, this.getZ());
+        // If our z level changed, check if we are on stair
+        if (z < this.getZ()) {
+            if (tile != Game.Tile.stairsUpTile) {
+                Game.sendMessage(this, "You can't go up here!");
             } else {
-                this.getMap().removeEntity(this);
+                Game.sendMessage(this, "You ascend to level %d!", [z + 1]);
+                this.setPosition(x, y, z);
             }
+        } else if (z > this.getZ()) {
+            if (tile != Game.Tile.stairsDownTile) {
+                Game.sendMessage(this, "You can't go down here!");
+            } else {
+                this.setPosition(x, y, z);
+                Game.sendMessage(this, "You descend to level %d!", [z + 1]);
+            }
+        // If an entity was present at the tile
+        } else if (target) {
+            // If we are an attacker, try to attack
+            // the target
+            if (this.hasMixin('Attacker')) {
+                this.attack(target);
+                return true;
+            } else {
+                // If not nothing we can do, but we can't 
+                // move to the tile
+                return false;
+            }
+        // Check if we can walk on the tile
+        // and if so simply walk onto it
+        } else if (tile.isWalkable()) {        
+            // Update the entity's position
+            this.setPosition(x, y, z);
+            return true;
+        // Check if the tile is diggable, and
+        // if so try to dig it
+        } else if (tile.isDiggable()) {
+            map.dig(x, y, z);
+            return true;
         }
+        return false;
     }
 };
 
-// Attacker mixin
-Game.Mixins.Attacker = {
-    name: 'Attacker',
-    groupName: 'Attacker',
 
-    init: function (template) {
-        this._attackValue = template['attackValue'] || 1;
-    },
-
-    getAttackValue: function () {
-        return this._attackValue;
-    },
-
-    attack: function (target) {
-        // only remove entity if attackable
-        if (target.hasMixin('Destructible')) {
-            var attack = this.getAttackValue();
-            var defense = this.getDefenseValue();
-            var max = Math.max(0, attack - defense);
-            var damage = 1 + Math.floor(Math.random() * max);
-
-            Game.sendMessage(this, 'You strike the %s for %d damage!',
-                             [target.getName(), damage]);
-            Game.sendMessage(target, 'The %s strikes you for %d damage!',
-                             [this.getName(), damage]);
-
-            target.takeDamage(this, damage);
-        }
-    }
-};
-
-// signifies our entity possesa fieldof visionof given radius
-Game.Mixins.Sight = {
-    name: 'Sight',
-    groupName: 'Sight',
-
-    init: function (template) {
-        this._sightRadius = template['sightRadius'] || 5;
-    },
-
-    getSightRadius: function () {
-        return this._sightRadius;
-    }
-};
-
-// Messaging
-Game.Mixins.MessageRecipient = {
-    name: 'MessageRecipient',
-    init: function (template) {
-        this._messages = [];
-    },
-
-    receiveMessage: function (message) {
-        this._messages.push(message);
-    },
-
-    getMessages: function () {
-        return this._messages;
-    },
-
-    clearMessages: function () {
-        this._messages = [];
-    }
-};
-
-Game.sendMessage = function (recipient, message, args) {
-    // makesure recipient can receive message
-    if (recipient.hasMixin(Game.Mixins.MessageRecipient)) {
-        // if args passed, format message, else no format
-        if (args) {
-            message = vsprintf(message, args);
-        }
-        recipient.receiveMessage(message);
-    }
-};
-
-Game.sendMessageNearby = function (map, centerX, centerY, centerZ, message, args) {
-    // if args were passed, format message else no format
-    if (args) {
-        message = vsprint(message, args);
-    }
-    // get nearby entities
-    entities = map.getEntitiesWithinRadius(centerX, centerY, centerZ, 5);
-
-    // iterate through nearby entities sending message if possible
-    for (var i = 0; i < entities.length; i++) {
-        if (entities[i].hasMixin(Game.Mixins.MessageRecipient)) {
-            entities[i].receiveMessage(message);
-        }
-    }
-};
-
-// Actors
-
+// Main player's actor mixin
 Game.Mixins.PlayerActor = {
     name: 'PlayerActor',
     groupName: 'Actor',
-
-    act: function () {
-        // detect if the game is over
+    act: function() {
+        // Detect if the game is over
         if (this.getHp() < 1) {
             Game.Screen.playScreen.setGameEnded(true);
-
-            // send last message to the player
+            // Send a last message to the player
             Game.sendMessage(this, 'You have died... Press [Enter] to continue!');
         }
-
-        // re-render the screen
+        // Re-render the screen
         Game.refresh();
-
-        // lock engine and wait for player
-        // to press key
+        // Lock the engine and wait asynchronously
+        // for the player to press a key.
         this.getMap().getEngine().lock();
-
-        // clear message queue
+        // Clear the message queue
         this.clearMessages();
     }
 };
@@ -164,39 +77,34 @@ Game.Mixins.PlayerActor = {
 Game.Mixins.FungusActor = {
     name: 'FungusActor',
     groupName: 'Actor',
-
-    init: function () {
+    init: function() {
         this._growthsRemaining = 5;
     },
-
-    act: function () {
-        // check if growths remain
+    act: function() { 
+        // Check if we are going to try growing this turn
         if (this._growthsRemaining > 0) {
-            if (Math.random () <= 0.02) {
-                // generate coordinate for random adjacent
-                // square -- generate number 0 to 2 and subtract
-                // 1 to find offsets for direction
+            if (Math.random() <= 0.02) {
+                // Generate the coordinates of a random adjacent square by
+                // generating an offset between [-1, 0, 1] for both the x and
+                // y directions. To do this, we generate a number from 0-2 and then
+                // subtract 1.
                 var xOffset = Math.floor(Math.random() * 3) - 1;
                 var yOffset = Math.floor(Math.random() * 3) - 1;
-
-                // make sure not spawning on same tile
-                if (xOffset !=0 || yOffset !=0) {
-                    // check if location is available
+                // Make sure we aren't trying to spawn on the same tile as us
+                if (xOffset != 0 || yOffset != 0) {
+                    // Check if we can actually spawn at that location, and if so
+                    // then we grow!
                     if (this.getMap().isEmptyFloor(this.getX() + xOffset,
                                                    this.getY() + yOffset,
                                                    this.getZ())) {
                         var entity = new Game.Entity(Game.FungusTemplate);
-                        entity.setPosition(this.getX() + xOffset,
-                                           this.getY() + yOffset,
-                                           this.getZ());
+                        entity.setPosition(this.getX() + xOffset, this.getY() + yOffset, this.getZ());
                         this.getMap().addEntity(entity);
                         this._growthsRemaining--;
-
-                        // send message nearby
+                        // Send a message nearby!
                         Game.sendMessageNearby(this.getMap(),
-                                               entity.getX(), entity.getY(),
-                                               entity.getZ(),
-                                               'The fungus is spreading!');
+                            entity.getX(), entity.getY(), entity.getZ(),
+                            'The fungus is spreading!');
                     }
                 }
             }
@@ -220,27 +128,128 @@ Game.Mixins.WanderActor = {
     }
 };
 
-// hit counter mixin
-Game.Mixins.HitCounter = {
-    name: 'HitCounter',
-
-    init: function (properties) {
-        // add state to entity and read props
-        this._multiplier = properties['multiplier'] || 1;
-        this._hits = 0;
+// This signifies our entity can attack basic destructible enities
+Game.Mixins.Attacker = {
+    name: 'Attacker',
+    groupName: 'Attacker',
+    init: function(template) {
+        this._attackValue = template['attackValue'] || 1;
     },
-
-    incrementHit: function () {
-        // update state
-        this._hits += this._multiplier;
+    getAttackValue: function() {
+        return this._attackValue;
     },
+    attack: function(target) {
+        // If the target is destructible, calculate the damage
+        // based on attack and defense value
+        if (target.hasMixin('Destructible')) {
+            var attack = this.getAttackValue();
+            var defense = target.getDefenseValue();
+            var max = Math.max(0, attack - defense);
+            var damage = 1 + Math.floor(Math.random() * max);
 
-    getTotalHits: function () {
-        return this._hits;
+            Game.sendMessage(this, 'You strike the %s for %d damage!', 
+                [target.getName(), damage]);
+            Game.sendMessage(target, 'The %s strikes you for %d damage!', 
+                [this.getName(), damage]);
+
+            target.takeDamage(this, damage);
+        }
     }
 };
 
-// Templates
+// This mixin signifies an entity can take damage and be destroyed
+Game.Mixins.Destructible = {
+    name: 'Destructible',
+    init: function(template) {
+        this._maxHp = template['maxHp'] || 10;
+        // We allow taking in health from the template incase we want
+        // the entity to start with a different amount of HP than the 
+        // max specified.
+        this._hp = template['hp'] || this._maxHp;
+        this._defenseValue = template['defenseValue'] || 0;
+    },
+    getDefenseValue: function() {
+        return this._defenseValue;
+    },
+    getHp: function() {
+        return this._hp;
+    },
+    getMaxHp: function() {
+        return this._maxHp;
+    },
+    takeDamage: function(attacker, damage) {
+        this._hp -= damage;
+        // If have 0 or less HP, then remove ourseles from the map
+        if (this._hp <= 0) {
+            Game.sendMessage(attacker, 'You kill the %s!', [this.getName()]);
+            // Check if the player died, and if so call their act method to prompt the user.
+            if (this.hasMixin(Game.Mixins.PlayerActor)) {
+                this.act();
+            } else {
+                this.getMap().removeEntity(this);
+            }
+        }
+    }
+};
+
+Game.Mixins.MessageRecipient = {
+    name: 'MessageRecipient',
+    init: function(template) {
+        this._messages = [];
+    },
+    receiveMessage: function(message) {
+        this._messages.push(message);
+    },
+    getMessages: function() {
+        return this._messages;
+    },
+    clearMessages: function() {
+        this._messages = [];
+    }
+};
+
+// This signifies our entity posseses a field of vision of a given radius.
+Game.Mixins.Sight = {
+    name: 'Sight',
+    groupName: 'Sight',
+    init: function(template) {
+        this._sightRadius = template['sightRadius'] || 5;
+    },
+    getSightRadius: function() {
+        return this._sightRadius;
+    }
+};
+
+// Message sending functions
+Game.sendMessage = function(recipient, message, args) {
+    // Make sure the recipient can receive the message 
+    // before doing any work.
+    if (recipient.hasMixin(Game.Mixins.MessageRecipient)) {
+        // If args were passed, then we format the message, else
+        // no formatting is necessary
+        if (args) {
+            message = vsprintf(message, args);
+        }
+        recipient.receiveMessage(message);
+    }
+};
+Game.sendMessageNearby = function(map, centerX, centerY, centerZ, message, args) {
+    // If args were passed, then we format the message, else
+    // no formatting is necessary
+    if (args) {
+        message = vsprintf(message, args);
+    }
+    // Get the nearby entities
+    entities = map.getEntitiesWithinRadius(centerX, centerY, centerZ, 5);
+    // Iterate through nearby entities, sending the message if
+    // they can receive it.
+    for (var i = 0; i < entities.length; i++) {
+        if (entities[i].hasMixin(Game.Mixins.MessageRecipient)) {
+            entities[i].receiveMessage(message);
+        }
+    }
+};
+
 
 // Player template
 Game.PlayerTemplate = {
@@ -254,33 +263,33 @@ Game.PlayerTemplate = {
              Game.Mixins.Sight, Game.Mixins.MessageRecipient]
 };
 
-// Fungus template
-Game.FungusTemplate = {
+// Create our central entity repository
+Game.EntityRepository = new Game.Repository('entities', Game.Entity);
+
+Game.EntityRepository.define('fungus', {
     name: 'fungus',
-    character: 'T',
+    character: 'F',
     foreground: 'green',
     maxHp: 10,
     mixins: [Game.Mixins.FungusActor, Game.Mixins.Destructible]
-};
+});
 
-// bat
-Game.BatTemplate = {
+Game.EntityRepository.define('bat', {
     name: 'bat',
-    character: 'w',
-    foreground: 'grey',
+    character: 'B',
+    foreground: 'white',
     maxHp: 5,
     attackValue: 4,
-    mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker,
-             Game.Mixins.Destructible]
-};
+    mixins: [Game.Mixins.WanderActor, 
+             Game.Mixins.Attacker, Game.Mixins.Destructible]
+});
 
-// newt
-Game.NewtTemplate = {
+Game.EntityRepository.define('newt', {
     name: 'newt',
     character: ':',
     foreground: 'yellow',
     maxHp: 3,
     attackValue: 2,
-    mixins: [Game.Mixins.WanderActor, Game.Mixins.Attacker,
-             Game.Mixins.Destructible]
-};
+    mixins: [Game.Mixins.WanderActor, 
+             Game.Mixins.Attacker, Game.Mixins.Destructible]
+});

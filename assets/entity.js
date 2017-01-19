@@ -2,20 +2,17 @@ Game.Entity = function(properties) {
     properties = properties || {};
     // Call the glyph's construtor with our set of properties
     Game.Glyph.call(this, properties);
-
     // Instantiate any properties from the passed object
     this._name = properties['name'] || '';
     this._x = properties['x'] || 0;
     this._y = properties['y'] || 0;
     this._z = properties['z'] || 0;
     this._map = null;
-
     // Create an object which will keep track what mixins we have
     // attached to this entity based on the name property
     this._attachedMixins = {};
     // Create a similar object for groups
     this._attachedMixinGroups = {};
-
     // Setup the object's mixins
     var mixins = properties['mixins'] || [];
     for (var i = 0; i < mixins.length; i++) {
@@ -28,15 +25,12 @@ Game.Entity = function(properties) {
                 this[key] = mixins[i][key];
             }
         }
-
         // Add the name of this mixin to our attached mixins
         this._attachedMixins[mixins[i].name] = true;
-
         // If a group name is present, add it
         if (mixins[i].groupName) {
             this._attachedMixinGroups[mixins[i].groupName] = true;
         }
-
         // Finally call the init function if there is one
         if (mixins[i].init) {
             mixins[i].init.call(this, properties);

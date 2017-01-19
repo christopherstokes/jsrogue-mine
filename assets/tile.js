@@ -1,65 +1,58 @@
-Game.Tile = function (properties) {
+Game.Tile = function(properties) {
     properties = properties || {};
-
-    // call Glyph constructor
+    // Call the Glyph constructor with our properties
     Game.Glyph.call(this, properties);
-
-    // set up the properties, false by default
-    this._isWalkable = properties['isWalkable'] || false;
-    this._isDiggable = properties['isDiggable'] || false;
-    this._blocksLight = (properties['blocksLight'] !== undefined) ? properties['blocksLight'] : true;
+    // Set up the properties. We use false by default.
+    this._walkable = properties['walkable'] || false;
+    this._diggable = properties['diggable'] || false;
+    this._blocksLight = (properties['blocksLight'] !== undefined) ?
+        properties['blocksLight'] : true;
 };
-
+// Make tiles inherit all the functionality from glyphs
 Game.Tile.extend(Game.Glyph);
 
-Game.Tile.prototype.isWalkable = function () {
-    return this._isWalkable;
+// Standard getters
+Game.Tile.prototype.isWalkable = function() {
+    return this._walkable;
 };
-
-Game.Tile.prototype.isDiggable = function () {
-    return this._isDiggable;
+Game.Tile.prototype.isDiggable = function() {
+    return this._diggable;
 };
-
-Game.Tile.prototype.isBlockingLight = function () {
+Game.Tile.prototype.isBlockingLight = function() {
     return this._blocksLight;
 };
 
 Game.Tile.nullTile = new Game.Tile();
-
 Game.Tile.floorTile = new Game.Tile({
     character: '.',
-    isWalkable: true,
+    walkable: true,
     blocksLight: false
 });
-
 Game.Tile.wallTile = new Game.Tile({
     character: '#',
     foreground: 'goldenrod',
-    isDiggable: true
+    diggable: true
 });
-
 Game.Tile.stairsUpTile = new Game.Tile({
     character: '<',
     foreground: 'white',
-    isWalkable: true,
+    walkable: true,
     blocksLight: false
 });
-
 Game.Tile.stairsDownTile = new Game.Tile({
     character: '>',
     foreground: 'white',
-    isWalkable: true,
+    walkable: true,
     blocksLight: false
 });
 
-// helper functions
-Game.getNeighborPositions = function (x, y) {
+// Helper function
+Game.getNeighborPositions = function(x, y) {
     var tiles = [];
-
-    // generate all possible offsets
-    for (var dX = -1; dX < 2; dX++) {
+    // Generate all possible offsets
+    for (var dX = -1; dX < 2; dX ++) {
         for (var dY = -1; dY < 2; dY++) {
-            // make sure it isn't same tile
+            // Make sure it isn't the same tile
             if (dX == 0 && dY == 0) {
                 continue;
             }
