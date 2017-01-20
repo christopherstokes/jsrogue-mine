@@ -12,18 +12,28 @@ Game.Map = function(tiles, player) {
     // Create a table which will hold the items
     this._items = {};
     // Create the engine and scheduler
-    this._scheduler = new ROT.Scheduler.Simple();
+    this._scheduler = new ROT.Scheduler.Speed();
     this._engine = new ROT.Engine(this._scheduler);
     // Add the player
+    this._player = player;
     this.addEntityAtRandomPosition(player, 0);
     // Add random entities and items to each floor.
     for (var z = 0; z < this._depth; z++) {
         // 15 entities per floor
         for (var i = 0; i < 15; i++) {
             // Add a random entity
-            this.addEntityAtRandomPosition(Game.EntityRepository.createRandom(), z);
+            var entity = Game.EntityRepository.createRandom();
+            // add random entity
+            this.addEntityAtRandomPosition(entity, z);
+            //level up the entity based on the floor
+            if (entity.hasMixin('ExperienceGainer')) {
+                for (var level = 0; level < z; level++) {
+                    entity.giveExperience(entity.getNextLevelExperience() -
+                                          entity.getExperience());
+                }
+            }
         }
-        // 10 items per floor
+        // 15 items per floor
         for (var i = 0; i < 15; i++) {
             // Add a random entity
             this.addItemAtRandomPosition(Game.ItemRepository.createRandom(), z);
@@ -138,6 +148,9 @@ Game.Map.prototype.getEntityAt = function(x, y, z){
     // Get the entity based on position key 
     return this._entities[x + ',' + y + ',' + z];
 };
+Game.Map.prototype.getPlayer = function() {
+    return this._player;
+}
 Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY,
                                                       centerZ, radius) {
     results = [];
