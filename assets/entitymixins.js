@@ -73,7 +73,7 @@ Game.EntityMixins.TaskActor = {
     groupName: 'Actor',
     init: function(template) {
         // load tasks
-        this._tasks = template['tasks'] || ['wander']
+        this._tasks = template['tasks'] || ['wander'];
     },
     act: function() {
         // iterate through all out tasks
@@ -186,6 +186,11 @@ Game.EntityMixins.Attacker = {
 
             target.takeDamage(this, damage);
         }
+    },
+    listeners: {
+        details: function() {
+            return [{key: 'attack', value: this.getAttackValue()}];
+        }
     }
 };
 
@@ -253,6 +258,12 @@ Game.EntityMixins.Destructible = {
         onGainLevel: function() {
             // heal the entity
             this.setHp(this.getMaxHp());
+        },
+        details: function() {
+            return [
+                {key: 'defense', value: this.getDefenseValue()},
+                {key: 'hp', value: this.getHp()}
+            ];
         }
     }
 };
@@ -404,6 +415,9 @@ Game.EntityMixins.ExperienceGainer = {
                 this.giveExperience(exp);
             }
 
+        },
+        details: function() {
+            return [{key: 'level', value: this.getLevel()}];
         }
     }
 };
