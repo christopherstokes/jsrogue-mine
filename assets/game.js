@@ -5,8 +5,6 @@ var Game =  {
     _screenHeight: 24,
 	  init: function() {
         // Any necessary initialization will go here.
-        var tileSet = document.getElementById('tileset');
-
         this._display = new ROT.Display({width: this._screenWidth,
                                          height: this._screenHeight + 1});
         // Create a helper function for binding to an event
