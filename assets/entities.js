@@ -1,5 +1,6 @@
 // Player template
 Game.PlayerTemplate = {
+    name: 'human (you)',
     character: '@',
     foreground: 'white',
     maxHp: 40,
@@ -29,14 +30,12 @@ Game.EntityRepository.define('fungus', {
 
 Game.EntityRepository.define('bat', {
     name: 'bat',
-    character: 'w',
+    character: 'B',
     foreground: 'white',
     maxHp: 5,
     attackValue: 4,
-    sightRadius: 3,
     speed: 2000,
-    tasks: ['hunt', 'wander'],
-    mixins: [Game.EntityMixins.TaskActor, Game.EntityMixins.Sight,
+    mixins: [Game.EntityMixins.TaskActor, 
              Game.EntityMixins.Attacker, Game.EntityMixins.Destructible,
              Game.EntityMixins.CorpseDropper,
              Game.EntityMixins.ExperienceGainer, Game.EntityMixins.RandomStatGainer]
@@ -48,7 +47,7 @@ Game.EntityRepository.define('newt', {
     foreground: 'yellow',
     maxHp: 3,
     attackValue: 2,
-    mixins: [Game.EntityMixins.TaskActor, 
+    mixins: [Game.EntityMixins.TaskActor,
              Game.EntityMixins.Attacker, Game.EntityMixins.Destructible,
              Game.EntityMixins.CorpseDropper,
              Game.EntityMixins.ExperienceGainer, Game.EntityMixins.RandomStatGainer]
@@ -57,7 +56,7 @@ Game.EntityRepository.define('newt', {
 Game.EntityRepository.define('kobold', {
     name: 'kobold',
     character: 'k',
-    foreground: 'green',
+    foreground: 'white',
     maxHp: 6,
     attackValue: 4,
     sightRadius: 5,
@@ -69,7 +68,7 @@ Game.EntityRepository.define('kobold', {
 });
 
 Game.EntityRepository.define('giant zombie', {
-    name: 'giant zombie',
+    name: 'giant zombie', 
     character: 'Z',
     foreground: 'teal',
     maxHp: 30,
@@ -77,10 +76,10 @@ Game.EntityRepository.define('giant zombie', {
     defenseValue: 5,
     level: 5,
     sightRadius: 6,
-    mixins:[Game.EntityMixins.GiantZombieActor, Game.EntityMixins.Sight,
-            Game.EntityMixins.Attacker, Game.EntityMixins.Destructible,
-            Game.EntityMixins.CorpseDropper,
-            Game.EntityMixins.ExperienceGainer]
+    mixins: [Game.EntityMixins.GiantZombieActor, Game.EntityMixins.Sight,
+             Game.EntityMixins.Attacker, Game.EntityMixins.Destructible,
+             Game.EntityMixins.CorpseDropper,
+             Game.EntityMixins.ExperienceGainer]
 }, {
     disableRandomCreation: true
 });
@@ -96,6 +95,5 @@ Game.EntityRepository.define('slime', {
     mixins: [Game.EntityMixins.TaskActor, Game.EntityMixins.Sight,
              Game.EntityMixins.Attacker, Game.EntityMixins.Destructible,
              Game.EntityMixins.CorpseDropper,
-             Game.EntityMixins.ExperienceGainer,
-             Game.EntityMixins.RandomStatGainer]
+             Game.EntityMixins.ExperienceGainer, Game.EntityMixins.RandomStatGainer]
 });

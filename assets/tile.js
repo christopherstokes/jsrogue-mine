@@ -22,11 +22,11 @@ Game.Tile.prototype.isDiggable = function() {
 Game.Tile.prototype.isBlockingLight = function() {
     return this._blocksLight;
 };
-Game.Tile.prototype.getDescriptions = function() {
+Game.Tile.prototype.getDescription = function() {
     return this._description;
-}
+};
 
-Game.Tile.nullTile = new Game.Tile();
+Game.Tile.nullTile = new Game.Tile({description: '(unknown)'});
 Game.Tile.floorTile = new Game.Tile({
     character: '.',
     walkable: true,
@@ -55,7 +55,7 @@ Game.Tile.stairsDownTile = new Game.Tile({
 });
 Game.Tile.holeToCavernTile = new Game.Tile({
     character: 'O',
-    'foreground': 'white',
+    foreground: 'white',
     walkable: true,
     blocksLight: false,
     description: 'A great dark hole in the ground'

@@ -17,6 +17,18 @@ Game.ItemRepository.define('melon', {
     mixins: [Game.ItemMixins.Edible]
 });
 
+Game.ItemRepository.define('pumpkin', {
+    name: 'pumpkin',
+    character: '%',
+    foreground: 'orange',
+    foodValue: 50,
+    attackValue: 2,
+    defenseValue: 2,
+    wearable: true,
+    wieldable: true,
+    mixins: [Game.ItemMixins.Edible, Game.ItemMixins.Equippable]
+});
+
 Game.ItemRepository.define('corpse', {
     name: 'corpse',
     character: '%',
@@ -33,7 +45,7 @@ Game.ItemRepository.define('rock', {
     foreground: 'white'
 });
 
-// weapons
+// Weapons
 Game.ItemRepository.define('dagger', {
     name: 'dagger',
     character: ')',
@@ -68,7 +80,7 @@ Game.ItemRepository.define('staff', {
     disableRandomCreation: true
 });
 
-// wearables
+// Wearables
 Game.ItemRepository.define('tunic', {
     name: 'tunic',
     character: '[',
@@ -100,17 +112,4 @@ Game.ItemRepository.define('platemail', {
     mixins: [Game.ItemMixins.Equippable]
 }, {
     disableRandomCreation: true
-});
-
-// zany items
-Game.ItemRepository.define('pumpkin', {
-    name: 'pumpkin',
-    character: '%',
-    foreground: 'orange',
-    foodValue: 50,
-    attackValue: 2,
-    defenseValue: 2,
-    wearable: true,
-    wieldable: true,
-    mixins: [Game.ItemMixins.Edible, Game.ItemMixins.Equippable]
 });

@@ -1,7 +1,7 @@
 Game.Map = function(tiles) {
     this._tiles = tiles;
     // Cache dimensions
-    this._depth = tiles.length;
+    this._depth = tiles.length
     this._width = tiles[0].length;
     this._height = tiles[0][0].length;
     // Setup the field of visions
@@ -116,9 +116,6 @@ Game.Map.prototype.getEntityAt = function(x, y, z){
     // Get the entity based on position key 
     return this._entities[x + ',' + y + ',' + z];
 };
-Game.Map.prototype.getPlayer = function() {
-    return this._player;
-}
 Game.Map.prototype.getEntitiesWithinRadius = function(centerX, centerY,
                                                       centerZ, radius) {
     results = [];
@@ -166,8 +163,8 @@ Game.Map.prototype.addEntity = function(entity) {
     // them to the scheduler
     if (entity.hasMixin('Actor')) {
        this._scheduler.add(entity, true);
-    }
-    // if the entity is the player, set the player
+    } 
+    // If the entity is the player, set the player.
     if (entity.hasMixin(Game.EntityMixins.PlayerActor)) {
         this._player = entity;
     }
@@ -183,17 +180,18 @@ Game.Map.prototype.removeEntity = function(entity) {
     if (entity.hasMixin('Actor')) {
         this._scheduler.remove(entity);
     }
-    // if the entity is the player, update player field
+    // If the entity is the player, update the player field.
     if (entity.hasMixin(Game.EntityMixins.PlayerActor)) {
         this._player = undefined;
     }
 };
 
-Game.Map.prototype.updateEntityPosition = function(entity, oldX, oldY, oldZ) {
-    // Delete the old key if it is the same entity and we have old positions.
+
+Game.Map.prototype.updateEntityPosition = function(
+    entity, oldX, oldY, oldZ) {
+    // Delete the old key if it is the same entity
+    // and we have old positions.
     if (typeof oldX === 'number') {
-        // delete the old key if is is the same entity
-        // and we have old positions
         var oldKey = oldX + ',' + oldY + ',' + oldZ;
         if (this._entities[oldKey] == entity) {
             delete this._entities[oldKey];
@@ -245,4 +243,8 @@ Game.Map.prototype.addItem = function(x, y, z, item) {
 Game.Map.prototype.addItemAtRandomPosition = function(item, z) {
     var position = this.getRandomFloorPosition(z);
     this.addItem(position.x, position.y, position.z, item);
+};
+
+Game.Map.prototype.getPlayer = function() {
+    return this._player;
 };

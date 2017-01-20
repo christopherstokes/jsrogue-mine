@@ -9,17 +9,18 @@ Game.DynamicGlyph = function(properties) {
     this._attachedMixins = {};
     // Create a similar object for groups
     this._attachedMixinGroups = {};
-    // Setup an object for listeners
+    // Set up an object for listeners
     this._listeners = {};
     // Setup the object's mixins
     var mixins = properties['mixins'] || [];
     for (var i = 0; i < mixins.length; i++) {
         // Copy over all properties from each mixin as long
-        // as it's not the name or the init property. We
+        // as it's not the name, init, or listeners property. We
         // also make sure not to override a property that
         // already exists on the entity.
         for (var key in mixins[i]) {
-            if (key != 'init' && key != 'name' && key != 'listeners' && !this.hasOwnProperty(key)) {
+            if (key != 'init' && key != 'name' && key != 'listeners' 
+                && !this.hasOwnProperty(key)) {
                 this[key] = mixins[i][key];
             }
         }
@@ -32,15 +33,13 @@ Game.DynamicGlyph = function(properties) {
         // Add all of our listeners
         if (mixins[i].listeners) {
             for (var key in mixins[i].listeners) {
-                // if we don't already have a key for event in
-                // our listener array add it
+                // If we don't already have a key for this event in our listeners
+                // array, add it.
                 if (!this._listeners[key]) {
                     this._listeners[key] = [];
                 }
-                // add the listener makin sure it does not already exist
-                if (this._listeners[key].push(mixins[i].listeners[key]) === -1) {
-                    this._listeners[key].push(mixins[i].listeners[key]);
-                };
+                // Add the listener.
+                this._listeners[key].push(mixins[i].listeners[key]);
             }
         }
         // Finally call the init function if there is one
@@ -86,16 +85,14 @@ Game.DynamicGlyph.prototype.describeThe = function(capitalize) {
     var prefix = capitalize ? 'The' : 'the';
     return prefix + ' ' + this.describe();
 };
-
 Game.DynamicGlyph.prototype.raiseEvent = function(event) {
     // Make sure we have at least one listener, or else exit
     if (!this._listeners[event]) {
         return;
     }
-    // extract anyarg passed removing the event name
-    var args = Array.prototype.slice.call(arguments, 1);
-    // invoke each listener, with this entity as the context and the
-    // arguments
+    // Extract any arguments passed, removing the event name
+    var args = Array.prototype.slice.call(arguments, 1)
+    // Invoke each listener, with this entity as the context and the arguments
     var results = [];
     for (var i = 0; i < this._listeners[event].length; i++) {
         results.push(this._listeners[event][i].apply(this, args));
@@ -106,14 +103,12 @@ Game.DynamicGlyph.prototype.raiseEvent = function(event) {
 Game.DynamicGlyph.prototype.details = function() {
     var details = [];
     var detailGroups = this.raiseEvent('details');
-    // iterate through each return value, grabbing the details from
-    // the arrays.
+    // Iterate through each return value, grabbing the detaisl from the arrays.
     if (detailGroups) {
         for (var i = 0, l = detailGroups.length; i < l; i++) {
             if (detailGroups[i]) {
                 for (var j = 0; j < detailGroups[i].length; j++) {
-                    details.push(detailGroups[i][j].key + ': '
-                                 + detailGroups[i][j].value);
+                    details.push(detailGroups[i][j].key + ': ' +  detailGroups[i][j].value);          
                 }
             }
         }

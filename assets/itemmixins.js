@@ -29,12 +29,13 @@ Game.ItemMixins.Edible = {
         }
     },
     listeners: {
-        details: function() {
+        'details': function() {
             return [{key: 'food', value: this._foodValue}];
         }
     }
 };
 
+// Equipment mixins
 Game.ItemMixins.Equippable = {
     name: 'Equippable',
     init: function(template) {
@@ -56,7 +57,7 @@ Game.ItemMixins.Equippable = {
         return this._wearable;
     },
     listeners: {
-        details: function() {
+        'details': function() {
             var results = [];
             if (this._wieldable) {
                 results.push({key: 'attack', value: this.getAttackValue()});
