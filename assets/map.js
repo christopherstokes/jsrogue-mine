@@ -1,7 +1,7 @@
 Game.Map = function(tiles) {
     this._tiles = tiles;
     // Cache dimensions
-    this._depth = tiles.length
+    this._depth = tiles.length;
     this._width = tiles[0].length;
     this._height = tiles[0][0].length;
     // Setup the field of visions

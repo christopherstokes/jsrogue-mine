@@ -162,13 +162,17 @@ Game.Screen.playScreen = {
         }
         if (inputType === 'keydown') {
             // Movement
-            if (inputData.keyCode === ROT.VK_LEFT) {
+            if (inputData.keyCode === ROT.VK_LEFT ||
+                inputData.keyCode === ROT.VK_H) {
                 this.move(-1, 0, 0);
-            } else if (inputData.keyCode === ROT.VK_RIGHT) {
+            } else if (inputData.keyCode === ROT.VK_RIGHT ||
+                       inputData.keyCode === ROT.VK_L) {
                 this.move(1, 0, 0);
-            } else if (inputData.keyCode === ROT.VK_UP) {
+            } else if (inputData.keyCode === ROT.VK_UP ||
+                       inputData.keyCode === ROT.VK_K) {
                 this.move(0, -1, 0);
-            } else if (inputData.keyCode === ROT.VK_DOWN) {
+            } else if (inputData.keyCode === ROT.VK_DOWN ||
+                       inputData.keyCode === ROT.VK_J) {
                 this.move(0, 1, 0);
             } else if (inputData.keyCode === ROT.VK_I) {
                 // Show the inventory screen
@@ -653,13 +657,17 @@ Game.Screen.TargetBasedScreen.prototype.render = function(display) {
 Game.Screen.TargetBasedScreen.prototype.handleInput = function(inputType, inputData) {
     // Move the cursor
     if (inputType == 'keydown') {
-        if (inputData.keyCode === ROT.VK_LEFT) {
+        if (inputData.keyCode === ROT.VK_LEFT ||
+            inputData.keyCode === ROT.VK_H) {
             this.moveCursor(-1, 0);
-        } else if (inputData.keyCode === ROT.VK_RIGHT) {
+        } else if (inputData.keyCode === ROT.VK_RIGHT ||
+                   inputData.keyCode === ROT.VK_L) {
             this.moveCursor(1, 0);
-        } else if (inputData.keyCode === ROT.VK_UP) {
+        } else if (inputData.keyCode === ROT.VK_UP ||
+                   inputData.keyCode === ROT.VK_K) {
             this.moveCursor(0, -1);
-        } else if (inputData.keyCode === ROT.VK_DOWN) {
+        } else if (inputData.keyCode === ROT.VK_DOWN ||
+                   inputData.keyCode === ROT.VK_J) {
             this.moveCursor(0, 1);
         } else if (inputData.keyCode === ROT.VK_ESCAPE) {
             Game.Screen.playScreen.setSubScreen(undefined);

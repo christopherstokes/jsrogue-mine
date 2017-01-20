@@ -34,8 +34,10 @@ Game.EntityRepository.define('bat', {
     foreground: 'white',
     maxHp: 5,
     attackValue: 4,
+    sightRadius: 2,
     speed: 2000,
-    mixins: [Game.EntityMixins.TaskActor, 
+    tasks: ['hunt', 'wander'],
+    mixins: [Game.EntityMixins.TaskActor, Game.EntityMixins.Sight,
              Game.EntityMixins.Attacker, Game.EntityMixins.Destructible,
              Game.EntityMixins.CorpseDropper,
              Game.EntityMixins.ExperienceGainer, Game.EntityMixins.RandomStatGainer]
