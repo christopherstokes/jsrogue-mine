@@ -57,7 +57,7 @@ Game.Entity.prototype.getMap = function() {
 };
 Game.Entity.prototype.getSpeed = function() {
     return this._speed;
-}
+};
 
 Game.Entity.prototype.tryMove = function(x, y, z, map) {
     var map = this.getMap();
@@ -73,7 +73,11 @@ Game.Entity.prototype.tryMove = function(x, y, z, map) {
             this.setPosition(x, y, z);
         }
     } else if (z > this.getZ()) {
-        if (tile != Game.Tile.stairsDownTile) {
+        if (tile === Game.Tile.holeToCavernTile &&
+            this.hasMixin(Game.EntityMixins.PlayerActor)) {
+            // switch the entity to a boss caver
+            this.switchMap(new Game.Map.BossCavern());
+        } else if (tile != Game.Tile.stairsDownTile) {
             Game.sendMessage(this, "You can't go down here!");
         } else {
             this.setPosition(x, y, z);
@@ -141,4 +145,18 @@ Game.Entity.prototype.kill = function(message) {
     } else {
         this.getMap().removeEntity(this);
     }
+};
+
+Game.Entity.prototype.switchMap = function(newMap) {
+    // if it's the same map, nothing to do
+    if (newMap === this.getMap()) {
+        return;
+    }
+    this.getMap().removeEntity(this);
+    // clear the position
+    this._x = 0;
+    this._y = 0;
+    this._z = 0;
+    // add to the new map
+    newMap.addEntity(this);
 };
