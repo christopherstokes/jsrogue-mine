@@ -83,7 +83,7 @@ Game.ItemRepository.define('staff', {
 // Wearables
 Game.ItemRepository.define('tunic', {
   name: 'TUNIC',
-  character: '[',
+  character: 'r',
   foreground: 'green',
   defenseValue: 2,
   wearable: true,
@@ -94,7 +94,7 @@ Game.ItemRepository.define('tunic', {
 
 Game.ItemRepository.define('chainmail', {
   name: 'CHAINMAIL',
-  character: '[',
+  character: 'r',
   foreground: 'white',
   defenseValue: 4,
   wearable: true,
@@ -105,7 +105,7 @@ Game.ItemRepository.define('chainmail', {
 
 Game.ItemRepository.define('platemail', {
   name: 'PLATEMAIL',
-  character: '[',
+  character: 'r',
   foreground: 'aliceblue',
   defenseValue: 6,
   wearable: true,

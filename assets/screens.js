@@ -736,14 +736,14 @@ Game.Screen.lookScreen = new Game.Screen.TargetBasedScreen({
           return String.format('%s - %s (%s)',
             item.getRepresentation(),
             item.describeA(true),
-            item.details());
+            item.details()).toUpperCase();
           // Else check if there's an entity
         } else if (map.getEntityAt(x, y, z)) {
           var entity = map.getEntityAt(x, y, z);
           return String.format('%s - %s (%s)',
             entity.getRepresentation(),
             entity.describeA(true),
-            entity.details());
+            entity.details()).toUpperCase();
         }
       }
       // If there was no entity/item or the tile wasn't visible, then use

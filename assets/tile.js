@@ -56,7 +56,7 @@ Game.Tile.stairsDownTile = new Game.Tile({
   description: 'A ROCK STAIRCASE LEADING DOWNWARDS'
 });
 Game.Tile.holeToCavernTile = new Game.Tile({
-  character: 'O',
+  character: 'o',
   foreground: 'white',
   walkable: true,
   blocksLight: false,
